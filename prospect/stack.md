@@ -3,11 +3,6 @@ The conventional and modern stack will be implemented to the project.
 Full list of technologies:  
   
 #### **Frontend**  
-<style>
-
-
-
-</style>
 
 <img src="icons/react-logo.png" style="position: relative;width: 30px; vertical-align: middle;"> **React** - Javascript lib  
   
