@@ -4,17 +4,17 @@ Full list of technologies:
   
 #### **Frontend**  
 <style>
-.icon{
-    position: relative;
-    width: 30px; 
-    vertical-align: middle;
-}
 
 
 
 </style>
 
-<img src="icons/react-logo.png" class="icon"> **React** - Javascript lib  
+<img src="icons/react-logo.png" style="
+    position: relative;
+    width: 30px; 
+    vertical-align: middle;
+"
+class="icon"> **React** - Javascript lib  
   
 <img src="icons/js-logo.png" class="icon">**Javascript** - main frontend language  
   
