@@ -12,7 +12,8 @@ erDiagram
     POST ||--o{ COMMENT: postId
     USER ||--o{ COMMENT: userId
     USER ||--o{ REACTION: userId
-    POST ||--o{ REACTION: postId 
+    COMMENT ||--o{ REACTION: postId 
+    POST ||--o{ POST_REACTION: postId 
     USER ||--o{ SUBSCRIBERS: userId
     USER ||--o{ SUBSCRIBERS: authorId
     USER{
@@ -52,5 +53,9 @@ erDiagram
     SUBSCRIBERS{
         VARCHAR(36) userId
         VARCHAR(36) authorId
+    }
+    POST_REACTION{
+        VARCHAR(36) postId
+        INT emojiId
     }
 ```
