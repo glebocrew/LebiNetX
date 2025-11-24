@@ -1,0 +1,20 @@
+2025-11-24 21:47:42.374684 INFO [logs.txt] Created file logs/start_log.txt where the logs will be displayed.
+2025-11-24 21:47:42.375184 I [logs.txt] Starting uvicorn with default args
+2025-11-24 21:47:42.489851 I [logs.txt] Starting uvicorn with default args
+2025-11-24 21:49:06.412170 I [logs.txt] Starting uvicorn with default args
+2025-11-24 21:49:06.533351 I [logs.txt] Starting uvicorn with default args
+2025-11-24 21:49:30.677186 I [logs.txt] Starting uvicorn with default args
+2025-11-24 21:49:37.903855 I [logs.txt] Starting uvicorn with default args
+2025-11-24 21:49:38.038657 I [logs.txt] Starting uvicorn with default args
+2025-11-24 21:49:51.607653 I [logs.txt] Starting uvicorn with default args
+2025-11-24 21:51:26.767463 I [logs.txt] Starting uvicorn with default args
+2025-11-24 21:51:26.883128 I [logs.txt] Starting uvicorn with default args
+2025-11-24 21:51:42.780869 I [logs.txt] Starting uvicorn with default args
+2025-11-24 21:51:42.895495 I [logs.txt] Starting uvicorn with default args
+2025-11-24 21:51:53.391139 I [logs.txt] Starting uvicorn with default args
+2025-11-24 21:51:57.582699 I [logs.txt] Starting uvicorn with default args
+2025-11-24 21:51:57.695365 I [logs.txt] Starting uvicorn with default args
+2025-11-24 21:54:38.679370 I [logs.txt] Starting uvicorn with default args
+2025-11-24 21:55:00.711286 I [logs.txt] Starting uvicorn with default args
+2025-11-24 21:55:00.831279 I [logs.txt] Starting uvicorn with default args
+2025-11-24 21:55:42.788380 I [logs.txt] Starting uvicorn with default args
