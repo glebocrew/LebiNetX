@@ -1,6 +1,6 @@
 from uvicorn import run
 from sys import argv, exit
-from logger import Logger
+from logger import Logger as Logger
 from consts import START_LOG_PATH, DEFAULT_HOST, DEFAULT_PORT, RELOAD, FASTAPI_PATH
 
 logger = Logger(path=START_LOG_PATH)

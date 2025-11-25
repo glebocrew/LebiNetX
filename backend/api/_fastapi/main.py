@@ -1,9 +1,10 @@
 from fastapi import FastAPI
-from response_models import User
+from _fastapi.response_models import User
 from typing import List
+from mariadb import DataBase
 
 app = FastAPI()
-
+db = DataBase()
 
 @app.get("/")
 async def index():
@@ -12,5 +13,8 @@ async def index():
 
 @app.get("/users")
 async def users() -> List[User]:
-    
-    return {}
+    users_raw = db.get_users()
+    if users_raw != -1:
+        return users
+    else:
+        return -1

@@ -22,3 +22,23 @@ GRANT ALL PRIVILEGES ON `lebinetx`.* TO 'lebinetx'@'%';
 ```sql
 FLUSH PRIVILEGES;
 ```
+
+        USER{
+        VARCHAR(36) userId
+        VARCHAR(50) nickname
+        VARCHAR(50) email
+        DATETIME createdAt
+        DATETIME updatedAt
+        BLOB avatar
+    }
+
+```sql
+CREATE TABLE users (
+    userId VARCHAR(36) PRIMARY KEY,
+    nickname VARCHAR(50) UNIQUE,
+    email VARCHAR(50) UNIQUE,
+    createdAt DATETIME,
+    updatedAt DATETIME,
+    avatar BLOB
+);
+```
