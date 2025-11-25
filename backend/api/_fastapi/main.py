@@ -6,6 +6,7 @@ from mariadb import DataBase
 app = FastAPI()
 db = DataBase()
 
+
 @app.get("/")
 async def index():
     return {"test_message": "If you see this, Gleb. FastAPI works."}
