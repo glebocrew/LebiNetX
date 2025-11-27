@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from _api.response_models import User
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from _db import DataBase
 
 app = FastAPI()
@@ -41,3 +41,23 @@ async def user(
     user = User(**user_raw)
 
     return user
+
+
+@app.delete("/user")
+def delete_user(userId: str) -> int:
+    response = db.delete_user(userId)
+    return response
+
+
+@app.post("/user")
+def create_user(email: str, nickname: str) -> Tuple[str, int]:
+    message, response = db.create_user(email=email, nickname=nickname)
+    if response == 200:
+        return (
+            "",
+            200,
+        )
+    else:
+        return (str(message).split(sep=":")[0], response)
+
+    # who never ever reads this text is gay except for the creator and me

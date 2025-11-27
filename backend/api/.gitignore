@@ -2,3 +2,4 @@ PASSWORDS.py
 .venv
 .ruff_cache
 logs/
+default_avatar.py

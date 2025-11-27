@@ -1,11 +1,16 @@
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine, select, delete, insert
 from sqlalchemy.orm import sessionmaker
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Tuple
+from consts import DEFAULT_AVATAR
+
+from fastapi import status
 
 from _db.PASSWORDS import HOST, PORT, USER, PASSWORD, DATABASE
 from _db.db_models import User
 
 from logger import Logger
+from uuid import uuid4
+from datetime import datetime
 
 logger = Logger("logs/db_logs.txt")
 
@@ -24,8 +29,8 @@ class DataBase:
         """
         Getting all users
 
-        :return: List of Database User model
-        :rtype: List[User]
+        :return: List of User jsons
+        :rtype: List[dict]
         """
         logger.log("l", "Getting all users...")
         try:
@@ -35,7 +40,7 @@ class DataBase:
                 users_result = users.scalars()
                 users = []
                 for user in users_result:
-                    print(user.userId)
+                    # print(user.userId)
                     users.append(
                         {
                             "userId": user.userId,
@@ -64,8 +69,18 @@ class DataBase:
         """
         Gets one user
 
-        :return: List of Database User model
-        :rtype: List[User]
+        :param userId: uuid4 of user
+        :type userId: Optional[str]
+
+        :param email: email of user
+        :type email: Optional[str]
+
+        :param nickname: nickname of user
+        :type nickname: Optional[str]
+
+
+        :return: Json user info
+        :rtype: dict
         """
         if userId is None and email is None and nickname is None:
             logger.log(
@@ -74,7 +89,7 @@ class DataBase:
             )
             return None
 
-        logger.log("l", "Getting all users...")
+        logger.log("l", "Getting user...")
 
         conditions = []
         if userId is not None:
@@ -84,12 +99,12 @@ class DataBase:
         if nickname is not None:
             conditions.append(User.nickname == nickname)
 
-        print(f"NICKNAME: {nickname}")
+        # print(f"NICKNAME: {nickname}")e
 
         try:
             with self.sessionmaker_local.begin() as session:
                 statement = select(User).where(*conditions)
-                print(statement)
+                logger.log("i", f"Executing statement {nickname}")
                 user = session.execute(statement).scalar()
 
                 return {
@@ -105,3 +120,40 @@ class DataBase:
             logger.log(
                 "e", f"The operation of getting user was incomplete! Full exception {e}"
             )
+
+    def delete_user(self, userId: str) -> status:
+        logger.log("i", "Deleting user...")
+        try:
+            with self.sessionmaker_local.begin() as session:
+                statement = delete(User).where(User.userId == userId)
+                session.execute(statement)
+                logger.log("i", "Deleted successfully")
+                return status.HTTP_200_OK
+
+        except Exception as e:
+            logger.log(
+                "e", f"An exception occured while deleting user. Full exception: {e}"
+            )
+            return status.HTTP_500_INTERNAL_SERVER_ERROR
+
+    def create_user(self, email: str, nickname: str) -> Tuple[str, int]:
+        logger.log(
+            "i", f"Creating user with fields: email={email}, nickname={nickname}"
+        )
+        try:
+            with self.sessionmaker_local.begin() as session:
+                statement = insert(User).values(
+                    userId=str(uuid4()),
+                    email=email,
+                    nickname=nickname,
+                    createdAt=datetime.now(),
+                    updatedAt=datetime.now(),
+                    avatar=f"/img/avatars/{DEFAULT_AVATAR}".encode("utf-8"),
+                )
+                session.execute(statement)
+                return "", status.HTTP_200_OK
+        except Exception as e:
+            logger.log(
+                "e", f"Something went wrong while creating user. Full exception: {e}"
+            )
+            return e, status.HTTP_400_BAD_REQUEST
