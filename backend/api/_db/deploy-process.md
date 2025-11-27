@@ -37,6 +37,7 @@ CREATE TABLE users (
     userId VARCHAR(36) PRIMARY KEY,
     nickname VARCHAR(50) UNIQUE,
     email VARCHAR(50) UNIQUE,
+    pwd VARCHAR(512),
     createdAt DATETIME,
     updatedAt DATETIME,
     avatar BLOB

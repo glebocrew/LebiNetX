@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, select, delete, insert
+from sqlalchemy import create_engine, select, delete, insert, update
 from sqlalchemy.orm import sessionmaker
 from typing import List, Optional, Dict, Tuple
 from consts import DEFAULT_AVATAR
@@ -46,6 +46,7 @@ class DataBase:
                             "userId": user.userId,
                             "nickname": user.nickname,
                             "email": user.email,
+                            "pwd": user.pwd,
                             "createdAt": user.createdAt,
                             "updatedAt": user.updatedAt,
                             "avatar": user.avatar,
@@ -104,13 +105,14 @@ class DataBase:
         try:
             with self.sessionmaker_local.begin() as session:
                 statement = select(User).where(*conditions)
-                logger.log("i", f"Executing statement {nickname}")
+                logger.log("i", f"Executing statement {statement}")
                 user = session.execute(statement).scalar()
 
                 return {
                     "userId": user.userId,
                     "nickname": user.nickname,
                     "email": user.email,
+                    "pwd": user.pwd,
                     "createdAt": user.createdAt,
                     "updatedAt": user.updatedAt,
                     "avatar": user.avatar,
@@ -122,6 +124,14 @@ class DataBase:
             )
 
     def delete_user(self, userId: str) -> status:
+        """
+        Deletes user only by id
+
+        :param userId: uuid4 of user
+        :type userId: str
+        :return: HTTP status of the action
+        :rtype: status
+        """
         logger.log("i", "Deleting user...")
         try:
             with self.sessionmaker_local.begin() as session:
@@ -136,9 +146,10 @@ class DataBase:
             )
             return status.HTTP_500_INTERNAL_SERVER_ERROR
 
-    def create_user(self, email: str, nickname: str) -> Tuple[str, int]:
+    def create_user(self, email: str, nickname: str, password: str) -> Tuple[str, int]:
         logger.log(
-            "i", f"Creating user with fields: email={email}, nickname={nickname}"
+            "i",
+            f"Creating user with fields: email={email}, nickname={nickname}, password={password}",
         )
         try:
             with self.sessionmaker_local.begin() as session:
@@ -146,6 +157,7 @@ class DataBase:
                     userId=str(uuid4()),
                     email=email,
                     nickname=nickname,
+                    pwd=password,
                     createdAt=datetime.now(),
                     updatedAt=datetime.now(),
                     avatar=f"/img/avatars/{DEFAULT_AVATAR}".encode("utf-8"),
@@ -157,3 +169,60 @@ class DataBase:
                 "e", f"Something went wrong while creating user. Full exception: {e}"
             )
             return e, status.HTTP_400_BAD_REQUEST
+
+    def patch_user(
+        self,
+        userId: str,
+        email: Optional[str] = None,
+        nickname: Optional[str] = None,
+        password: Optional[str] = None,
+    ) -> Optional[Tuple]:
+        """
+        Gets one user
+
+        :param userId: uuid4 of user
+        :type userId: str
+
+        :param email: email of user [NEW]
+        :type email: Optional[str]
+
+        :param nickname: nickname of user [NEW]
+        :type nickname: Optional[str]
+
+        :param password: password of user [NEW]
+        :type password: Optional[str]
+
+        :return: status of create
+        :rtype: tuple
+        """
+        if email is None and nickname is None and password is None:
+            logger.log(
+                "e",
+                "At least of argument should be not None while calling `patch_user`. Please, select userId/email/nickname",
+            )
+            return "No arguments", status.HTTP_400_BAD_REQUEST
+
+        logger.log("l", "Patching user...")
+
+        values = {}
+        if email is not None:
+            values["email"] = email
+        if nickname is not None:
+            values["nickname"] = nickname
+        if password is not None:
+            values["pwd"] = password
+        values["updatedAt"] = datetime.now()
+        # print(f"{values['pwd']}")
+
+        try:
+            with self.sessionmaker_local.begin() as session:
+                statement = update(User).where(User.userId == userId).values(**values)
+                logger.log("i", f"Executing statement {statement}")
+                session.execute(statement)
+                return "", status.HTTP_200_OK
+
+        except Exception as e:
+            logger.log(
+                "e", f"The operation of getting user was incomplete! Full exception {e}"
+            )
+            return str(e), status.HTTP_400_BAD_REQUEST

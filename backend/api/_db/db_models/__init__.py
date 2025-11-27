@@ -14,6 +14,7 @@ class User(Base):
     userId: Mapped[str] = mapped_column(String(36), primary_key=True)
     nickname: Mapped[str] = mapped_column(String(50), unique=True)
     email: Mapped[str] = mapped_column(String(50), unique=True)
+    pwd: Mapped[str] = mapped_column(String(50))
     createdAt: Mapped[datetime] = mapped_column(DateTime)
     updatedAt: Mapped[datetime] = mapped_column(DateTime)
     avatar: Mapped[bytes] = mapped_column(BLOB)
