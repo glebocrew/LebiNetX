@@ -39,13 +39,13 @@ async def new_post(userId: str, title: str, content: str) -> Tuple[str, int]:
     return message, status
 
 
-@post_router.delete("/post")
+@post_router.delete("/posts")
 def delete_post(postId: str) -> int:
     response = db.delete_post(postId=postId)
     return response
 
 
-@post_router.patch("/post")
+@post_router.patch("/posts")
 def patch_user(
     postId: str, title: Optional[str] = None, content: Optional[str] = None
 ) -> Tuple:
