@@ -6,7 +6,9 @@ from consts import DEFAULT_AVATAR
 from fastapi import status
 
 from _db.PASSWORDS import HOST, PORT, USER, PASSWORD, DATABASE
-from _db.db_models import User
+from _db.db_models import User, Post
+
+from hashlib import sha512
 
 from logger import Logger
 from uuid import uuid4
@@ -24,6 +26,10 @@ class DataBase:
         self.sessionmaker_local = sessionmaker(
             autoflush=False, autocommit=False, bind=self.engine
         )
+
+    # ============================================
+    #                    USERS
+    # ============================================
 
     def get_users(self) -> Optional[List[User]]:
         """
@@ -153,6 +159,10 @@ class DataBase:
         )
         try:
             with self.sessionmaker_local.begin() as session:
+                password = sha512()
+                password.update(str.encode(pwd, "utf-8"))
+                pwd = password.hexdigest()
+
                 statement = insert(User).values(
                     userId=str(uuid4()),
                     email=email,
@@ -168,7 +178,7 @@ class DataBase:
             logger.log(
                 "e", f"Something went wrong while creating user. Full exception: {e}"
             )
-            return e, status.HTTP_400_BAD_REQUEST
+            return str(e).split(sep=":")[0], status.HTTP_400_BAD_REQUEST
 
     def patch_user(
         self,
@@ -178,7 +188,7 @@ class DataBase:
         password: Optional[str] = None,
     ) -> Optional[Tuple]:
         """
-        Gets one user
+        Patches one user
 
         :param userId: uuid4 of user
         :type userId: str
@@ -192,13 +202,13 @@ class DataBase:
         :param password: password of user [NEW]
         :type password: Optional[str]
 
-        :return: status of create
+        :return: status of patch
         :rtype: tuple
         """
         if email is None and nickname is None and password is None:
             logger.log(
                 "e",
-                "At least of argument should be not None while calling `patch_user`. Please, select userId/email/nickname",
+                "At least of argument should be not None while calling `patch_user`. Please, select email/nickname/pwd",
             )
             return "No arguments", status.HTTP_400_BAD_REQUEST
 
@@ -211,6 +221,9 @@ class DataBase:
             values["nickname"] = nickname
         if password is not None:
             values["pwd"] = password
+            pwd = sha512()
+            pwd.update(str.encode(values["pwd"], "utf-8"))
+            values["pwd"] = pwd.hexdigest()
         values["updatedAt"] = datetime.now()
         # print(f"{values['pwd']}")
 
@@ -223,6 +236,174 @@ class DataBase:
 
         except Exception as e:
             logger.log(
-                "e", f"The operation of getting user was incomplete! Full exception {e}"
+                "e",
+                f"The operation of patching user was incomplete! Full exception {e}",
             )
-            return str(e), status.HTTP_400_BAD_REQUEST
+            return str(e).split(sep=":")[0], status.HTTP_400_BAD_REQUEST
+
+    # ============================================
+    #                    POSTS
+    # ============================================
+
+    def get_posts(self) -> List[Dict]:
+        """
+        Gets all posts
+
+        :returns: List of Posts
+        :rtype: List[Dict]
+        """
+        logger.log("i", "Getting all posts...")
+        try:
+            with self.sessionmaker_local.begin() as session:
+                statement = select(Post)
+                logger.log("i", f"Executing statiement: {statement}")
+                result = session.execute(statement).scalars()
+                if result == []:
+                    return None
+
+                posts = []
+                for post in result:
+                    posts.append(
+                        {
+                            "postId": post.postId,
+                            "userId": post.userId,
+                            "title": post.title,
+                            "content": post.content,
+                            "createdAt": post.createdAt,
+                            "updatedAt": post.updatedAt,
+                        }
+                    )
+                print(result)
+                return posts
+        except Exception as e:
+            logger.log("e", f"An exception occured! E: {e}")
+
+    def get_user_posts(self, userId):
+        """
+        Gets user's posts
+
+        :returns: List of Posts
+        :rtype: Dict
+        """
+        logger.log("i", "Getting all user's posts...")
+        try:
+            with self.sessionmaker_local.begin() as session:
+                statement = select(Post).where(Post.userId == userId)
+                logger.log("i", f"Executing statiement: {statement}")
+                result = session.execute(statement).scalars()
+                print(result)
+                if result == []:
+                    return None
+
+                posts = []
+                for post in result:
+                    posts.append(
+                        {
+                            "postId": post.postId,
+                            "userId": post.userId,
+                            "title": post.title,
+                            "content": post.content,
+                            "createdAt": post.createdAt,
+                            "updatedAt": post.updatedAt,
+                        }
+                    )
+
+                return posts
+        except Exception as e:
+            logger.log("e", f"An exception occured! E: {e}")
+
+    def create_post(self, userId: str, title: str, content: str) -> Tuple[str, int]:
+        logger.log("i", "Creating post...")
+        try:
+            with self.sessionmaker_local.begin() as session:
+                statement = insert(Post).values(
+                    postId=str(uuid4()),
+                    userId=userId,
+                    title=title,
+                    content=content,
+                    createdAt=datetime.now(),
+                    updatedAt=datetime.now(),
+                )
+
+                session.execute(statement)
+                return ("", status.HTTP_200_OK)
+
+        except Exception as e:
+            logger.log(
+                "e", f"Something went wrong while creating post. Full exception: {e}"
+            )
+            return (str(e).split(sep=":")[0], status.HTTP_400_BAD_REQUEST)
+
+    def delete_post(self, postId):
+        """
+        Deletes post only by id
+
+        :param userId: uuid4 of post
+        :type userId: str
+        :return: HTTP status of the action
+        :rtype: status
+        """
+        logger.log("i", "Deleting post...")
+        try:
+            with self.sessionmaker_local.begin() as session:
+                statement = delete(Post).where(Post.postId == postId)
+                session.execute(statement)
+                logger.log("i", "Deleted successfully")
+                return status.HTTP_200_OK
+
+        except Exception as e:
+            logger.log(
+                "e", f"An exception occured while deleting post. Full exception: {e}"
+            )
+            return status.HTTP_500_INTERNAL_SERVER_ERROR
+
+    def patch_post(
+        self,
+        postId: str,
+        title: Optional[str] = None,
+        content: Optional[str] = None,
+    ) -> Optional[Tuple]:
+        """
+        Patches post
+
+        :param userId: uuid4 of post
+        :type userId: str
+
+        :param title: title of post [NEW]
+        :type title: Optional[str]
+
+        :param content: content of post [NEW]
+        :type content: Optional[str]
+
+        :return: status of patch
+        :rtype: tuple
+        """
+        if title is None and content is None:
+            logger.log(
+                "e",
+                "At least of argument should be not None while calling `patch_post`. Please, select title/content",
+            )
+            return "No arguments", status.HTTP_400_BAD_REQUEST
+
+        logger.log("l", "Patching post...")
+
+        values = {}
+        if title is not None:
+            values["title"] = title
+        if content is not None:
+            values["content"] = content
+        values["updatedAt"] = datetime.now()
+
+        try:
+            with self.sessionmaker_local.begin() as session:
+                statement = update(Post).where(Post.postId == postId).values(**values)
+                logger.log("i", f"Executing statement {statement}")
+                session.execute(statement)
+                return "", status.HTTP_200_OK
+
+        except Exception as e:
+            logger.log(
+                "e",
+                f"The operation of patching post was incomplete! Full exception {e}",
+            )
+            return str(e).split(sep=":")[0], status.HTTP_400_BAD_REQUEST

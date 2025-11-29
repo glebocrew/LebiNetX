@@ -10,3 +10,12 @@ class User(BaseModel):
     createdAt: datetime
     updatedAt: datetime
     avatar: bytes
+
+
+class Post(BaseModel):
+    postId: str
+    userId: str
+    title: str
+    content: str
+    createdAt: datetime
+    updatedAt: datetime

@@ -43,3 +43,24 @@ CREATE TABLE users (
     avatar BLOB
 );
 ```
+
+```sql
+CREATE TABLE posts (
+    postId VARCHAR(36) PRIMARY KEY,
+    userId VARCHAR(36) NOT NULL,
+    title TEXT,
+    content TEXT,
+    createdAt DATETIME,
+    updatedAt DATETIME,
+    FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
+);
+```
+
+```sql
+CREATE TABLE post_reactions(
+    reactionId VARCHAR(36) PRIMARY KEY,
+    postId VARCHAR(36) NOT NULL,
+    reaction INT,
+    FOREIGN KEY (postId) REFERENCES posts(postId) ON DELETE CASCADE
+);
+```
