@@ -1,5 +1,5 @@
-HOST = "localhost"
+HOST = "fedora"
 PORT = 3306
 USER = "lebinetx"
-PASSWORD = "****"
+PASSWORD = "lebinetx"
 DATABASE = "lebinetx"

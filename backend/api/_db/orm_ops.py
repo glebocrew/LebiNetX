@@ -18,7 +18,7 @@ logger = Logger("logs/db_logs.txt")
 class DataBase:
     def __init__(self):
         self.engine = create_engine(
-            f"mysql+mysqlconnector://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
+            f"mariadb+mariadbconnector://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
         )
 
         self.sessionmaker_local = sessionmaker(
@@ -146,10 +146,10 @@ class DataBase:
             )
             return status.HTTP_500_INTERNAL_SERVER_ERROR
 
-    def create_user(self, email: str, nickname: str, password: str) -> Tuple[str, int]:
+    def create_user(self, email: str, nickname: str, pwd: str) -> Tuple[str, int]:
         logger.log(
             "i",
-            f"Creating user with fields: email={email}, nickname={nickname}, password={password}",
+            f"Creating user with fields: email={email}, nickname={nickname}, password={pwd}",
         )
         try:
             with self.sessionmaker_local.begin() as session:
@@ -157,7 +157,7 @@ class DataBase:
                     userId=str(uuid4()),
                     email=email,
                     nickname=nickname,
-                    pwd=password,
+                    pwd=pwd,
                     createdAt=datetime.now(),
                     updatedAt=datetime.now(),
                     avatar=f"/img/avatars/{DEFAULT_AVATAR}".encode("utf-8"),
