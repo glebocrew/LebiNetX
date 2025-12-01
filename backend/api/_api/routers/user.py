@@ -48,13 +48,8 @@ def delete_user(userId: str) -> int:
 @user_router.post("/user")
 def create_user(email: str, nickname: str, password: str) -> Tuple[str, int]:
     message, response = db.create_user(email=email, nickname=nickname, pwd=password)
-    if response == 200:
-        return (
-            "",
-            200,
-        )
-    else:
-        return (message, response)
+
+    return (message, response)
 
     # who never ever reads this text is gay except for the creator and me
 

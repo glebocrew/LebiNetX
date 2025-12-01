@@ -6,7 +6,9 @@ from consts import DEFAULT_AVATAR
 from fastapi import status
 
 from _db.PASSWORDS import HOST, PORT, USER, PASSWORD, DATABASE
-from _db.db_models import User, Post
+from _db.db_models import User, Post, PostReaction, Comment, CommentReaction, Hashtag
+
+from _ai import generate_hashtags
 
 from hashlib import sha512
 
@@ -316,8 +318,9 @@ class DataBase:
         logger.log("i", "Creating post...")
         try:
             with self.sessionmaker_local.begin() as session:
+                postId = str(uuid4())
                 statement = insert(Post).values(
-                    postId=str(uuid4()),
+                    postId=postId,
                     userId=userId,
                     title=title,
                     content=content,
@@ -326,6 +329,12 @@ class DataBase:
                 )
 
                 session.execute(statement)
+
+                for hashtag in generate_hashtags(content):
+                    statement = insert(Hashtag).values(
+                        hashtagId=str(uuid4()), postId=postId, hashtag=hashtag
+                    )
+                    session.execute(statement=statement)
                 return ("", status.HTTP_200_OK)
 
         except Exception as e:
@@ -407,3 +416,299 @@ class DataBase:
                 f"The operation of patching post was incomplete! Full exception {e}",
             )
             return str(e).split(sep=":")[0], status.HTTP_400_BAD_REQUEST
+
+    # ============================================
+    #               POST_REACTIONS
+    # ============================================
+
+    def get_post_reactions(self, postId: str) -> List[Dict]:
+        """
+        Gets all post reactions
+
+        :param postId: uuid of PostReaction
+        :type postId: str
+
+        :returns: List of Posts
+        :rtype: List[Dict]
+        """
+        logger.log("i", "Getting all posts...")
+        try:
+            with self.sessionmaker_local.begin() as session:
+                statement = select(PostReaction).where(PostReaction.postId == postId)
+                logger.log("i", f"Executing statiement: {statement}")
+                result = session.execute(statement).scalars()
+                if result == []:
+                    return None
+
+                reactions = []
+                for reaction in result:
+                    reactions.append(
+                        {
+                            "reactionId": reaction.reactionId,
+                            "postId": reaction.postId,
+                            "userId": reaction.userId,
+                            "reaction": reaction.reaction,
+                        }
+                    )
+                print(result)
+                return reactions
+        except Exception as e:
+            logger.log("e", f"An exception occured! E: {e}")
+
+    def create_post_reaction(
+        self, userId: str, postId: str, reaction: int
+    ) -> Tuple[str, int]:
+        """
+        Creates a reaction on a post
+
+        :param reactionId: uuid of reaction [PK]
+        :type reactionId: str
+
+        :param userId: uuid of user [FK]
+        :type userId: str
+
+        :param postId: uuid of post [FK]
+        :type postId: str
+
+        :param reaction: reaction number
+        :type reaction: int
+        """
+        logger.log("i", "Creating post reaction...")
+        try:
+            with self.sessionmaker_local.begin() as session:
+                statement = insert(PostReaction).values(
+                    reactionId=str(uuid4()),
+                    userId=userId,
+                    postId=postId,
+                    reaction=reaction,
+                )
+
+                logger.log("i", f"Executing statement {statement}")
+                session.execute(statement)
+                logger.log("i", "Succesfully created post reaction!")
+
+                return "", status.HTTP_200_OK
+        except Exception as e:
+            logger.log(
+                "e", f"An exception occured while creating new post reaction: {e}"
+            )
+            return str(e).split(sep=":")[0], status.HTTP_400_BAD_REQUEST
+
+    def delete_post_reaction(self, reactionId):
+        """
+        Deletes post reaction only by id
+
+        :param reactionId: uuid4 of post
+        :type reactionId: str
+        :return: HTTP status of the action
+        :rtype: status
+        """
+        logger.log("i", "Deleting post reaction...")
+        try:
+            with self.sessionmaker_local.begin() as session:
+                statement = delete(PostReaction).where(
+                    PostReaction.postId == reactionId
+                )
+                session.execute(statement)
+                logger.log("i", "Deleted successfully")
+                return status.HTTP_200_OK
+
+        except Exception as e:
+            logger.log(
+                "e",
+                f"An exception occured while deleting post reaction. Full exception: {e}",
+            )
+            return status.HTTP_500_INTERNAL_SERVER_ERROR
+
+    # ============================================
+    #                  COMMENTS
+    # ============================================
+
+    def create_comment(self, userId: str, postId: str, content: str) -> Tuple[str, int]:
+        logger.log("i", "Creating comment...")
+        try:
+            with self.sessionmaker_local.begin() as session:
+                statement = insert(Comment).values()
+                session.execute(statement)
+                return ("", status.HTTP_200_OK)
+
+        except Exception as e:
+            logger.log(
+                "e",
+                f"Something went wrong while creating commment. Full exception: {e}",
+            )
+            return (str(e).split(sep=":")[0], status.HTTP_400_BAD_REQUEST)
+
+    def get_comments(self, postId):
+        """
+        Gets all post reactions
+
+        :param postId: uuid of Comment
+        :type postId: str
+
+        :returns: List of Comments
+        :rtype: List[Dict]
+        """
+        logger.log("i", "Getting all comments...")
+        try:
+            with self.sessionmaker_local.begin() as session:
+                statement = select(Comment).where(Comment.postId == postId)
+                logger.log("i", f"Executing statiement: {statement}")
+                result = session.execute(statement).scalars()
+                if result == []:
+                    return None
+
+                comments = []
+                for comment in result:
+                    comments.append(
+                        {
+                            "commentId": comment.commentId,
+                            "postId": comment.postId,
+                            "userId": comment.userId,
+                            "content": comment.content,
+                        }
+                    )
+                print(result)
+                return comments
+        except Exception as e:
+            logger.log("e", f"An exception occured! E: {e}")
+
+    # ============================================
+    #              COMMENT_REACTIONS
+    # ============================================
+
+    def get_comment_reactions(self, commentId: str) -> List[Dict]:
+        """
+        Gets all post reactions
+
+        :param commentId: uuid of CommentReaction
+        :type commentId: str
+
+        :returns: List of CommentReactions
+        :rtype: List[Dict]
+        """
+        logger.log("i", "Getting all comment reactions...")
+        try:
+            with self.sessionmaker_local.begin() as session:
+                statement = select(CommentReaction).where(
+                    CommentReaction.commentId == commentId
+                )
+                logger.log("i", f"Executing statiement: {statement}")
+                result = session.execute(statement).scalars()
+                if result == []:
+                    return None
+
+                reactions = []
+                for reaction in result:
+                    reactions.append(
+                        {
+                            "reactionId": reaction.reactionId,
+                            "commentId": reaction.commentId,
+                            "userId": reaction.userId,
+                            "reaction": reaction.reaction,
+                        }
+                    )
+                print(result)
+                return reactions
+        except Exception as e:
+            logger.log("e", f"An exception occured! E: {e}")
+
+    def create_comment_reaction(
+        self, userId: str, commentId: str, reaction: int
+    ) -> Tuple[str, int]:
+        """
+        Creates a reaction on a post
+
+        :param reactionId: uuid of reaction [PK]
+        :type reactionId: str
+
+        :param userId: uuid of user [FK]
+        :type userId: str
+
+        :param commentId: uuid of comment [FK]
+        :type postId: str
+
+        :param reaction: reaction number
+        :type reaction: int
+        """
+        logger.log("i", "Creating comment reaction...")
+        try:
+            with self.sessionmaker_local.begin() as session:
+                statement = insert(CommentReaction).values(
+                    reactionId=str(uuid4()),
+                    userId=userId,
+                    commentId=commentId,
+                    reaction=reaction,
+                )
+
+                logger.log("i", f"Executing statement {statement}")
+                session.execute(statement)
+                logger.log("i", "Succesfully created comment reaction!")
+
+                return "", status.HTTP_200_OK
+        except Exception as e:
+            logger.log(
+                "e", f"An exception occured while creating new comment reaction: {e}"
+            )
+            return str(e).split(sep=":")[0], status.HTTP_400_BAD_REQUEST
+
+    def delete_comment_reaction(self, reactionId):
+        """
+        Deletes comment reaction only by id
+
+        :param reactionId: uuid4 of post
+        :type reactionId: str
+        :return: HTTP status of the action
+        :rtype: status
+        """
+        logger.log("i", "Deleting comment reaction...")
+        try:
+            with self.sessionmaker_local.begin() as session:
+                statement = delete(CommentReaction).where(
+                    CommentReaction.postId == reactionId
+                )
+                session.execute(statement)
+                logger.log("i", "Deleted successfully")
+                return status.HTTP_200_OK
+
+        except Exception as e:
+            logger.log(
+                "e",
+                f"An exception occured while deleting comment reaction. Full exception: {e}",
+            )
+            return status.HTTP_500_INTERNAL_SERVER_ERROR
+
+    # ============================================
+    #                HASHTAGS
+    # ============================================
+
+    def get_hashtags(self, postId):
+        """
+        Gets post's hashtags
+
+        :returns: List of Posts
+        :rtype: Dict
+        """
+        logger.log("i", "Getting all post's hashtags...")
+        try:
+            with self.sessionmaker_local.begin() as session:
+                statement = select(Hashtag).where(Hashtag.postId == postId)
+                logger.log("i", f"Executing statiement: {statement}")
+                result = session.execute(statement).scalars()
+                print(result)
+                if result == []:
+                    return None
+
+                hashtags = []
+                for hashtag in result:
+                    hashtags.append(
+                        {
+                            "hashtagId": hashtag.hashtagId,
+                            "postId": hashtag.postId,
+                            "hashtag": hashtag.hashtag,
+                        }
+                    )
+
+                return hashtags
+        except Exception as e:
+            logger.log("e", f"An exception occured! E: {e}")

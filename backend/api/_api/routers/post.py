@@ -1,6 +1,6 @@
 from fastapi import routing
 from _db import DataBase
-from _api.response_models import Post
+from _api.response_models import Post, Hashtag
 from typing import Optional, List, Tuple
 
 post_router = routing.APIRouter()
@@ -8,9 +8,9 @@ db = DataBase()
 
 
 @post_router.get("/posts")
-async def posts(postId: Optional[str] = None) -> Optional[List[Post]]:
-    if postId is not None:
-        posts_raw = db.get_user_posts(postId)
+async def posts(userId: Optional[str] = None) -> Optional[List[Post]]:
+    if userId is not None:
+        posts_raw = db.get_user_posts(userId)
         if posts_raw is None:
             return None
         else:
@@ -19,7 +19,7 @@ async def posts(postId: Optional[str] = None) -> Optional[List[Post]]:
                 posts.append(Post(**post))
             return posts
 
-    if postId is None:
+    if userId is None:
         posts_raw = db.get_posts()
         # print(posts_raw)
         if posts_raw is None:
@@ -40,13 +40,13 @@ async def new_post(userId: str, title: str, content: str) -> Tuple[str, int]:
 
 
 @post_router.delete("/posts")
-def delete_post(postId: str) -> int:
+async def delete_post(postId: str) -> int:
     response = db.delete_post(postId=postId)
     return response
 
 
 @post_router.patch("/posts")
-def patch_user(
+async def patch_user(
     postId: str, title: Optional[str] = None, content: Optional[str] = None
 ) -> Tuple:
     # print(db.patch_user(userId=userId, email=email, nickname=nickname, password=password))
@@ -59,3 +59,15 @@ def patch_user(
         )
     else:
         return (message, response)
+
+
+@post_router.get("/hashtags")
+async def hashtags(postId: str) -> List[Hashtag]:
+    hashtags_raw = db.get_hashtags(postId)
+    if hashtags_raw is None:
+        return None
+    else:
+        hashtags = []
+        for hashtag in hashtags_raw:
+            hashtags.append(Hashtag(**hashtag))
+        return hashtags

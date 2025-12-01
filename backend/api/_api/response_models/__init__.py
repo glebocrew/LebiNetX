@@ -19,3 +19,30 @@ class Post(BaseModel):
     content: str
     createdAt: datetime
     updatedAt: datetime
+
+
+class Hashtag(BaseModel):
+    hashtagId: str
+    postId: str
+    hashtag: str
+
+
+class PostReaction(BaseModel):
+    reactionId: str
+    postId: str
+    userId: str
+    reaction: int
+
+
+class CommentReaction(BaseModel):
+    reactionId: str
+    commentId: str
+    userId: str
+    reaction: int
+
+
+class Comment(BaseModel):
+    commentId: str
+    postId: str
+    userId: str
+    content: str
