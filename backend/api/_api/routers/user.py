@@ -27,7 +27,7 @@ async def user(
     userId: Optional[str] = None,
     email: Optional[str] = None,
     nickname: Optional[str] = None,
-    pwd: Optional[str] = None
+    pwd: Optional[str] = None,
 ) -> Optional[User]:
     user_raw = db.get_user(userId=userId, email=email, nickname=nickname, pwd=pwd)
     # print(f"USER: {user_raw}")

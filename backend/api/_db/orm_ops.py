@@ -74,7 +74,7 @@ class DataBase:
         userId: Optional[str] = None,
         email: Optional[str] = None,
         nickname: Optional[str] = None,
-        pwd: Optional[str] = None
+        pwd: Optional[str] = None,
     ) -> Optional[Dict]:
         """
         Gets one user
@@ -115,7 +115,7 @@ class DataBase:
             password = sha512()
             password.update(str.encode(pwd, "utf-8"))
             pwd = password.hexdigest()
-            
+
             conditions.append(User.pwd == pwd)
 
         # print(f"NICKNAME: {nickname}")e
