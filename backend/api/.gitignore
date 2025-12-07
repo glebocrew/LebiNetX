@@ -3,3 +3,4 @@ PASSWORDS.py
 .ruff_cache
 logs/
 default_avatar.py
+start_daemon.sh

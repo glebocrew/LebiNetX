@@ -74,6 +74,7 @@ class DataBase:
         userId: Optional[str] = None,
         email: Optional[str] = None,
         nickname: Optional[str] = None,
+        pwd: Optional[str] = None
     ) -> Optional[Dict]:
         """
         Gets one user
@@ -87,11 +88,14 @@ class DataBase:
         :param nickname: nickname of user
         :type nickname: Optional[str]
 
+        :param pwd: password hash of user
+        :type pwd: Optional[str]
+
 
         :return: Json user info
         :rtype: dict
         """
-        if userId is None and email is None and nickname is None:
+        if userId is None and email is None and nickname is None and pwd is not None:
             logger.log(
                 "e",
                 "At least of argument should be not None while calling `get_user`. Please, select userId/email/nickname",
@@ -107,6 +111,12 @@ class DataBase:
             conditions.append(User.email == email)
         if nickname is not None:
             conditions.append(User.nickname == nickname)
+        if pwd is not None:
+            password = sha512()
+            password.update(str.encode(pwd, "utf-8"))
+            pwd = password.hexdigest()
+            
+            conditions.append(User.pwd == pwd)
 
         # print(f"NICKNAME: {nickname}")e
 
@@ -115,16 +125,18 @@ class DataBase:
                 statement = select(User).where(*conditions)
                 logger.log("i", f"Executing statement {statement}")
                 user = session.execute(statement).scalar()
-
-                return {
-                    "userId": user.userId,
-                    "nickname": user.nickname,
-                    "email": user.email,
-                    "pwd": user.pwd,
-                    "createdAt": user.createdAt,
-                    "updatedAt": user.updatedAt,
-                    "avatar": user.avatar,
-                }
+                if user:
+                    return {
+                        "userId": user.userId,
+                        "nickname": user.nickname,
+                        "email": user.email,
+                        "pwd": user.pwd,
+                        "createdAt": user.createdAt,
+                        "updatedAt": user.updatedAt,
+                        "avatar": user.avatar,
+                    }
+                else:
+                    return None
 
         except Exception as e:
             logger.log(

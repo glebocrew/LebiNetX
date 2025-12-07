@@ -27,8 +27,9 @@ async def user(
     userId: Optional[str] = None,
     email: Optional[str] = None,
     nickname: Optional[str] = None,
+    pwd: Optional[str] = None
 ) -> Optional[User]:
-    user_raw = db.get_user(userId=userId, email=email, nickname=nickname)
+    user_raw = db.get_user(userId=userId, email=email, nickname=nickname, pwd=pwd)
     # print(f"USER: {user_raw}")
 
     if user_raw is None:
@@ -39,13 +40,13 @@ async def user(
     return user
 
 
-@user_router.delete("/user")
+@user_router.delete("/users")
 def delete_user(userId: str) -> int:
     response = db.delete_user(userId)
     return response
 
 
-@user_router.post("/user")
+@user_router.post("/users")
 def create_user(email: str, nickname: str, password: str) -> Tuple[str, int]:
     message, response = db.create_user(email=email, nickname=nickname, pwd=password)
 
@@ -54,7 +55,7 @@ def create_user(email: str, nickname: str, password: str) -> Tuple[str, int]:
     # who never ever reads this text is gay except for the creator and me
 
 
-@user_router.patch("/user")
+@user_router.patch("/users")
 def patch_user(
     userId: str,
     email: Optional[str] = None,
