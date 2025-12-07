@@ -112,9 +112,9 @@ class DataBase:
         if nickname is not None:
             conditions.append(User.nickname == nickname)
         if pwd is not None:
-            password = sha512()
-            password.update(str.encode(pwd, "utf-8"))
-            pwd = password.hexdigest()
+            # password = sha512()
+            # password.update(str.encode(pwd, "utf-8"))
+            # pwd = password.hexdigest()
 
             conditions.append(User.pwd == pwd)
 
