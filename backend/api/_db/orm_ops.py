@@ -173,9 +173,9 @@ class DataBase:
         )
         try:
             with self.sessionmaker_local.begin() as session:
-                password = sha512()
-                password.update(str.encode(pwd, "utf-8"))
-                pwd = password.hexdigest()
+                # password = sha512()
+                # password.update(str.encode(pwd, "utf-8"))
+                # pwd = password.hexdigest()
 
                 statement = insert(User).values(
                     userId=str(uuid4()),
