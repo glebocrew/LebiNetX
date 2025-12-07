@@ -1,0 +1,66 @@
+* {
+    --background-color--: rgba(0, 0, 0, 255);
+
+    --text-color--: rgba(255, 255, 255, 255);
+    --text-family--: "jb";
+    --text-size--: 3vw;
+
+    color: var(--text-color--); 
+    background-color: var(--background-color--);
+    font-family: "jb";
+}
+
+@media (orientation: landscape) {}
+
+@media (orientation: portrait) {}
+
+@media (prefers-color-scheme: dark) {
+    * {
+        --background-color--: rgba(0, 0, 0, 255);
+        --header-h1-color--: rgba(255, 255, 255, 0);
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    * {
+        --header-h1-color--: rgba(0, 0, 0, 255);
+        --background-color--: rgba(255, 255, 255, 0);
+    }
+}
+
+@font-face {
+    font-family: "jb";
+    src: url("Components/Fonts/JB-mono.ttf");
+}
+
+html,
+body{
+    position: relative;
+
+    width: 100%;
+    height: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    background-color: var(--background-color--);
+}
+
+.header{
+    position: relative;
+    width: 100%;
+}
+
+.header-h1 {
+    position: relative;
+    width: 100%;
+    
+    font-family: var(--text-family--);
+    font-size: var(--text-size--);
+    color: var(--text-color--);
+    
+    margin: 0;
+    padding: 0;
+
+    text-align: center;
+}

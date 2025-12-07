@@ -1,0 +1,57 @@
+*{
+    --menu-background--: rgba(255, 255, 255, 255);
+}
+
+@media (prefers-color-scheme: dark) {
+    *{
+        --menu-background--: rgba(255, 255, 255, 255);
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    *{
+        --menu-background--: rgba(0, 0, 0, 255);
+    }
+}
+
+.menu{
+    position: relative;
+
+    width: 50%;
+
+    margin-left: auto;
+    margin-right: auto;
+
+    background-color: var(--);
+}
+
+.menu-ul-li-container-icon{
+    position: relative;
+
+    width: 50px;
+
+    padding: 0;
+    margin: 0;
+
+    margin-right: auto;
+    margin-left: auto;
+
+    stroke: white
+}
+
+.menu-ul{
+    position: relative;
+
+    display: flex;
+
+    list-style: none;
+}
+
+.menu-ul-li{
+    position: relative;
+
+    margin-left: auto;
+    margin-right: auto;
+
+    font-size: 1.5vw;
+}
