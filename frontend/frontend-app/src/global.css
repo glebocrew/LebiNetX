@@ -5,9 +5,13 @@
     --text-family--: "jb";
     --text-size--: 3vw;
 
-    color: var(--text-color--); 
-    background-color: var(--background-color--);
+
     font-family: "jb";
+    color: var(--text-color--); 
+}
+
+html, body{
+    background-color: var(--background-color--);
 }
 
 @media (orientation: landscape) {}

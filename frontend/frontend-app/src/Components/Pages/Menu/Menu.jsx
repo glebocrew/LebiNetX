@@ -8,6 +8,7 @@ function Menu() {
     const redirectHome = () => redirect("/");
     const redirectSignIn = () => redirect("/signin");
     const redirectSignUp = () => redirect("/signup");
+    const redirectPosts = () => redirect("/posts");
 
     return (
         <nav class="menu">
@@ -41,6 +42,16 @@ function Menu() {
                         alt="menu-ul-li-container-icon"></img> */}
                         <p class="menu-ul-li-container-text">
                             Sign Up
+                        </p>
+                    </div>
+                </li>
+                <li class="menu-ul-li" onClick={ redirectPosts }>
+                    <div class="menu-ul-li-content">
+                        {/* <img 
+                        class="menu-ul-li-container-icon"
+                        alt="menu-ul-li-container-icon"></img> */}
+                        <p class="menu-ul-li-container-text">
+                            Posts
                         </p>
                     </div>
                 </li>

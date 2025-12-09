@@ -1,0 +1,79 @@
+*:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: inherit !important;
+}
+
+.signin-form{
+    position: relative;
+
+    width: 50%;
+
+    margin: 0;
+    padding: 0;
+    margin-left: auto;
+    margin-right: auto;
+
+    text-align: center;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.signin-form input{
+    position: relative;
+
+    margin: 0;
+    padding: 0;
+
+    width: 50%;
+
+    margin-left: auto;
+    margin-right: auto;
+
+    font-size: 1.5vw;
+
+    border: rgba(0, 0, 0, 0) 3px solid !important;
+    text-align: center;
+    border-radius: 45px;
+
+    background-color: rgb(37, 37, 37);
+    /* border: rgba(255,255,255,255) !important; */
+}
+
+
+.signin-form button{
+    position: relative;
+
+    width: 25%;
+
+    margin: 0;
+    padding: 0;
+
+    margin-top: 15px;
+    margin-left: auto;
+    margin-right: auto;
+
+    padding: 10px;
+    
+    font-size: 1vw;
+
+    border: rgba(0, 0, 0, 0) 3px solid !important;
+    text-align: center;
+    border-radius: 45px;
+
+    background-color: rgb(37, 37, 37);
+}
+
+#message{
+    font-size: 1vw;
+}
+
+.input-name{
+    position: relative;
+
+    margin: 0;
+    padding: 0;
+    
+    font-size: 1.5vw;
+}

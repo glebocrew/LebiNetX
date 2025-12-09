@@ -1,44 +1,104 @@
-import "./SignIn.css"
+import "./SignIn.css";
 import Menu from "../Menu/Menu";
+import sha512 from "../Utils/Sha512";
 
-function authorize(login, password) {
-    fetch(`/user?login=${login}&password=${password}`)
+
+function authorize(login, pwd) {
+    return fetch(`/user?nickname=${login}&pwd=${pwd}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            if (response.json == null) {
-                return 0;
-            }
             else {
-                return 1;
+                return response.json();
             }
         })
         .then(data => {
             console.log('Data received:', data);
+            console.log(login, pwd);
+            console.log(`The declaration that data == null is ${data == null}`);
+            if (data == null) {
+                return 0;
+            }
+            else {
+                // createJWT(data[])
+                localStorage.setItem("userId", data.userId);
+                localStorage.setItem("pwd", data.pwd);
+                localStorage.setItem("createdAt", new Date());
+
+                // if (new Date() - createdAt) / (1000 * 60 * 60) > 30
+
+                console.log(data.userId, data.pwd);
+                return 1;
+            }
         })
         .catch(error => {
             console.error('Error fetching data:', error);
         });
 };
 
-function verify() {
-    const button = document.getElementById("verify");
+function onButtonClick() {
+    console.log("Clicked check info!")
+    let login = document.getElementById("login").value;
+    let pwd = document.getElementById("pwd").value;
 
-}
+    if (login === "" || pwd === "") return;
+
+    if (!(login && pwd)) {
+        console.log("Login and pwd not found!");
+    }
+
+    console.log(login, pwd);
+
+    let message = document.getElementById("message");
+
+    if (!message) {
+        console.log("No message field found!");
+    }
+
+    sha512(pwd)
+        .then(hashedPwd => {
+            console.log("Hashed properly!");
+            return authorize(login, hashedPwd);
+        })
+        .then(result => {
+            if (message) {
+                console.log(`Result: ${result}`)
+                if (result) {
+                    message.textContent = `Correct data!`;
+                }
+                else {
+                    message.textContent = "Incorrect data!";
+                }
+            }
+        })
+        .catch(error => {
+            console.log("An error occured! Full e:", error);
+        });
+};
+
+
+
+
+
 
 function SignIn() {
+
     return (
         <>
             <header class="header">
                 <h1 class="header-h1">Sign In</h1>
             </header>
             <Menu />
-            <div class="login-form">
-                <input type="text" id="login"></input>
-                <input type="password" id="password"></input>
+            <div className="signin-form">
+                <p class="input-name">Nickname</p>
+                <input type="text" id="login" autoComplete="off" required></input>
+                
+                <p class="input-name">Password</p>
+                <input type="password" id="pwd" autoComplete="off" required></input>
 
-                <button id="verify">Check Info</button>
+                <button id="verify" onClick={onButtonClick}>Check Info</button>
+                <p id="message"></p>
             </div>
         </>
     );
