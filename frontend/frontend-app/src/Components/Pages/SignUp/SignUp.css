@@ -64,6 +64,8 @@
     border-radius: 45px;
 
     background-color: rgb(37, 37, 37);
+    cursor: pointer;
+
 }
 
 #message{

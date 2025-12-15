@@ -3,13 +3,15 @@ import Menu from "../Menu/Menu";
 import sha512 from "../Utils/Sha512";
 
 
-function authorize(login, pwd) {
+async function authorize(login, pwd) {
+    console.log(`/user?nickname=${login}&pwd=${pwd}`)
     return fetch(`/user?nickname=${login}&pwd=${pwd}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             else {
+                // console.log(response.json());
                 return response.json();
             }
         })
@@ -24,7 +26,7 @@ function authorize(login, pwd) {
                 // createJWT(data[])
                 localStorage.setItem("userId", data.userId);
                 localStorage.setItem("pwd", data.pwd);
-                localStorage.setItem("createdAt", new Date());
+                localStorage.setItem("createdAt", Date.now().toString());
 
                 // if (new Date() - createdAt) / (1000 * 60 * 60) > 30
 
@@ -39,8 +41,8 @@ function authorize(login, pwd) {
 
 function onButtonClick() {
     console.log("Clicked check info!")
-    let login = document.getElementById("login").value;
-    let pwd = document.getElementById("pwd").value;
+    let login = document.getElementById("login").value.trim();
+    let pwd = document.getElementById("pwd").value.trim();
 
     if (login === "" || pwd === "") return;
 

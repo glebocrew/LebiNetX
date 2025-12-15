@@ -1,6 +1,16 @@
-import "./SignUp.css"
+import "./Profile.css"
 import Menu from "../Menu/Menu";
 import sha512 from "../Utils/Sha512";
+
+function getUserData(userId) {
+    return fetch(`/user?userId=${userId}`)
+        .then(userData => {
+            return userData.json()
+        })
+        .catch(error => {
+            console.log("An error occured!")
+        });
+}
 
 async function onButtonClick() {
     let login, email, pwd, repeat_pwd, message;
@@ -82,33 +92,35 @@ async function onButtonClick() {
     });
 }
 
-function SignUp() {
+async function Profile() {
+    let userInfo = await getUserData(localStorage.getItem("userId"));
+    let nickname = "";
+    let email = ""
+
+    if (userInfo != []) {
+        nickname = userInfo.nickname;
+        email = userInfo.email;
+    }
+
 
     return (
         <>
             <header class="header">
-                <h1 class="header-h1">Sign Up</h1>
+                <h1 class="header-h1">Profile</h1>
             </header>
             <Menu />
             <div className="signin-form">
                 <p class="input-name">Nickname</p>
-                <input type="text" id="login" autoComplete="off" required></input>
+                <input type="text" id="login" autoComplete="off" value={nickname} required></input>
 
                 <p class="input-name">Email</p>
-                <input type="text" id="email" autoComplete="off" required></input>
+                <input type="text" id="email" autoComplete="off" value={email} required></input>
 
-                <p class="input-name">Password</p>
-                <input type="password" id="pwd" autoComplete="off" required></input>
-
-                <p class="input-name">Repeat Password</p>
-                <input type="password" id="repeat-pwd" autoComplete="off" required></input>
-
-
-                <button id="verify" onClick={onButtonClick}>Check Info</button>
+                <button id="verify" onClick={onButtonClick}>Change Info</button>
                 <p id="message"></p>
             </div>
         </>
     );
 };
 
-export default SignUp;    
+export default Profile;    

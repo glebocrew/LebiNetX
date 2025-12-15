@@ -1,26 +1,7 @@
-import "./Posts.css"
+import "./Post.css"
 import Menu from "../Menu/Menu";
 import { useEffect, useRef } from "react";
-
-function deletePost(postId){
-    return fetch(`/posts?postId=${postId}`, {
-        "method": "DELETE"
-    })
-        .then(response => {
-            if (!response.ok) {
-                console.log("The response code is not 200!");
-                return null;
-            }
-            else {
-                console.log(response)
-                return response.json();
-            }
-        })
-        .catch(error => {
-            console.log("An error occured!");
-            return null;
-        });
-}
+import { useParams } from "react-router-dom";
 
 function getUserById(userId) {
     return fetch(`/user?userId=${userId}`)
@@ -55,24 +36,17 @@ async function checkAuthorization() {
         console.log(`userId is ${userId}`);
         hashedPwd = localStorage.getItem("pwd");
         createdAt = localStorage.getItem("createdAt");
-        
-        createdAt = Number(createdAt);
-        
-        now = Date.now();
+        now = new Date();
 
-        console.log(`Now timestamp: ${now}`);
+        console.log(`Now is ${now}`);
         console.log(`The auth createdAt: ${createdAt}`);
-        console.log(`Difference in hours: ${(now - createdAt) / (1000 * 60 * 60)}`);
+        console.log((now - createdAt) / (1000 * 60 * 60));
 
-        if (isNaN(createdAt)) {
-            console.log('createdAt is not a valid number');
-            return 0;
-        }
-
-        if ((now - createdAt) / (1000 * 60 * 60) > 1) {
+        if ((now - createdAt) / (1000 * 60 * 60) > 30) {
             localStorage.removeItem("userId");
             localStorage.removeItem("pwd");
             localStorage.removeItem("createdAt");
+
             return 0;
         }
 
@@ -89,12 +63,15 @@ async function checkAuthorization() {
         return 0;
     }
     catch {
-        console.log("Something went wrong while getting from local storage.");
+        console.log("Something went wrong while getting from local storage. ")
         return 0;
     }
 }
-function getPosts() {
-    return fetch(`/posts`)
+
+function getPost(postId) {
+    console.log(postId.postId)
+    console.log(`getPost(postId=${postId.postId})`)
+    return fetch(`/posts?postId=${postId.postId}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -108,7 +85,6 @@ function getPosts() {
                 return 0;
             }
             else {
-
                 return data;
             }
         })
@@ -132,6 +108,7 @@ function getPostHashTags(postId) {
                 return 0;
             }
             else {
+
                 return data;
             }
         })
@@ -141,9 +118,11 @@ function getPostHashTags(postId) {
 }
 
 
-function Posts() {
+function Post() {
     const hasFetchedRef = useRef(false);
     console.log(`Registration checked: result - ${checkAuthorization()}`);
+
+    const { postId } = useParams();
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -156,12 +135,12 @@ function Posts() {
             if (hasFetchedRef.current) return;
             hasFetchedRef.current = true;
             const postsContainer = document.getElementById("postsContainer");
-
-            getPosts()
+            console.log(`starting getPost(postId=${postId})`)
+            getPost({ postId })
                 .then(posts => {
                     if (posts === 0 || posts === 0) {
                         let p = document.createElement("p");
-                        p.textContent = "No Posts"
+                        p.textContent = "Post not found"
                         postsContainer.appendChild(p);
                     }
                     else {
@@ -184,8 +163,6 @@ function Posts() {
                             let hashtagsContainer = document.createElement("div");
                             hashtagsContainer.className = "post-hashtags";
 
- 
-
                             // Исправлена опечатка в цикле (было i вместо h)
                             getPostHashTags(posts[i].postId).then(postHashTags => {
                                 for (let h = 0; h < postHashTags.length; ++h) {
@@ -199,27 +176,18 @@ function Posts() {
                             post.appendChild(postTitle);
                             post.appendChild(postContent);
                             post.appendChild(hashtagsContainer);
-
-                            if (posts[i].userId === localStorage.getItem("userId")) {
-                                let deletePostButton = document.createElement("button");
-                                deletePostButton.className = "delete-post-button";
-                                deletePostButton.textContent = "Delete Post";
-                                deletePostButton.onclick = () => deletePost(posts[i].postId);
-                                post.appendChild(deletePostButton);
-                            }
-
                             postsContainer.appendChild(post);
                         }
                     }
                 });
         };
         checkAuth();
-    }, []);
+    }, [[postId]]);
 
     return (
         <>
             <header class="header">
-                <h1 class="header-h1">Posts</h1>
+                <h1 class="header-h1">Post</h1>
             </header>
             <Menu />
             <div class="posts" id="postsContainer">
@@ -228,4 +196,4 @@ function Posts() {
     );
 };
 
-export default Posts;
+export default Post;
