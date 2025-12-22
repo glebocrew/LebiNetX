@@ -8,28 +8,28 @@ db = DataBase()
 
 
 @post_router.get("/posts")
-async def posts(userId: Optional[str] = None) -> Optional[List[Post]]:
-    if userId is not None:
-        posts_raw = db.get_user_posts(userId)
-        if posts_raw is None:
-            return None
-        else:
-            posts = []
-            for post in posts_raw:
-                posts.append(Post(**post))
-            return posts
+async def posts(userId: Optional[str] = None, postId: Optional[str] = None, title: Optional[str] = None) -> Optional[List[Post]]:
 
-    if userId is None:
-        posts_raw = db.get_posts()
-        # print(posts_raw)
-        if posts_raw is None:
-            return None
-
+    posts_raw = db.get_posts(userId=userId, postId=postId, title=title)
+    if posts_raw is None:
+        return None
+    else:
         posts = []
         for post in posts_raw:
             posts.append(Post(**post))
-
         return posts
+
+    # if userId is None:
+    #     posts_raw = db.get_posts()
+    #     # print(posts_raw)
+    #     if posts_raw is None:
+    #         return None
+
+    #     posts = []
+    #     for post in posts_raw:
+    #         posts.append(Post(**post))
+
+    #     return posts
 
 
 @post_router.post("/posts")

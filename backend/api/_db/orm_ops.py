@@ -259,72 +259,66 @@ class DataBase:
     #                    POSTS
     # ============================================
 
-    def get_posts(self) -> List[Dict]:
+    def get_posts(
+        self,
+        userId: Optional[str] = None,
+        postId: Optional[str] = None,
+        title: Optional[str] = None
+    ) -> Optional[Dict]:
         """
-        Gets all posts
+        Gets one user
 
-        :returns: List of Posts
-        :rtype: List[Dict]
+        :param userId: uuid4 of user
+        :type userId: Optional[str]
+
+        :param postId: email of user
+        :type postId: Optional[str]
+
+        :param title: title of post
+        :type title: Optional[str]
+
+
+        :return: Json post info
+        :rtype: dict
         """
-        logger.log("i", "Getting all posts...")
+
+        logger.log("l", "Getting posts...")
+
+        conditions = []
+        if userId is not None:
+            conditions.append(Post.userId == userId)
+        if postId is not None:
+            conditions.append(Post.postId == postId)
+        if title is not None:
+            conditions.append(Post.title == title)
+
         try:
             with self.sessionmaker_local.begin() as session:
-                statement = select(Post)
-                logger.log("i", f"Executing statiement: {statement}")
-                result = session.execute(statement).scalars()
-                if result == []:
-                    return None
-
+                statement = select(Post).where(*conditions)
+                logger.log("i", f"Executing statement {statement}")
+                posts_result = session.execute(statement).scalars()
                 posts = []
-                for post in result:
+                for post in posts_result:
+                    # print(user.userId)
                     posts.append(
                         {
-                            "postId": post.postId,
                             "userId": post.userId,
+                            "postId": post.postId,
                             "title": post.title,
                             "content": post.content,
                             "createdAt": post.createdAt,
-                            "updatedAt": post.updatedAt,
+                            "updatedAt": post.updatedAt
                         }
                     )
-                print(result)
-                return posts
-        except Exception as e:
-            logger.log("e", f"An exception occured! E: {e}")
-
-    def get_user_posts(self, userId):
-        """
-        Gets user's posts
-
-        :returns: List of Posts
-        :rtype: Dict
-        """
-        logger.log("i", "Getting all user's posts...")
-        try:
-            with self.sessionmaker_local.begin() as session:
-                statement = select(Post).where(Post.userId == userId)
-                logger.log("i", f"Executing statiement: {statement}")
-                result = session.execute(statement).scalars()
-                print(result)
-                if result == []:
+                if posts == []:
                     return None
-
-                posts = []
-                for post in result:
-                    posts.append(
-                        {
-                            "postId": post.postId,
-                            "userId": post.userId,
-                            "title": post.title,
-                            "content": post.content,
-                            "createdAt": post.createdAt,
-                            "updatedAt": post.updatedAt,
-                        }
-                    )
-
                 return posts
+
         except Exception as e:
-            logger.log("e", f"An exception occured! E: {e}")
+            logger.log(
+                "e", f"The operation of getting posts was incomplete! Full exception {e}"
+            )
+
 
     def create_post(self, userId: str, title: str, content: str) -> Tuple[str, int]:
         logger.log("i", "Creating post...")

@@ -157,8 +157,11 @@ function Posts() {
             hasFetchedRef.current = true;
             const postsContainer = document.getElementById("postsContainer");
 
+            const currentUserId = localStorage.getItem("userId");
             getPosts()
                 .then(posts => {
+                    const sortedPosts = posts.sort((a, b) => 
+                    b.userId === currentUserId ? 1 : a.userId === currentUserId ? -1 : 0);
                     if (posts === 0 || posts === 0) {
                         let p = document.createElement("p");
                         p.textContent = "No Posts"
@@ -186,7 +189,6 @@ function Posts() {
 
  
 
-                            // Исправлена опечатка в цикле (было i вместо h)
                             getPostHashTags(posts[i].postId).then(postHashTags => {
                                 for (let h = 0; h < postHashTags.length; ++h) {
                                     let postHashTag = document.createElement("p");
@@ -199,6 +201,7 @@ function Posts() {
                             post.appendChild(postTitle);
                             post.appendChild(postContent);
                             post.appendChild(hashtagsContainer);
+                            post.onclick = () => { window.location.href = `/post/${posts[i].postId}`; };
 
                             if (posts[i].userId === localStorage.getItem("userId")) {
                                 let deletePostButton = document.createElement("button");

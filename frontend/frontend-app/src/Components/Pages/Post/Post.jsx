@@ -69,9 +69,9 @@ async function checkAuthorization() {
 }
 
 function getPost(postId) {
-    console.log(postId.postId)
-    console.log(`getPost(postId=${postId.postId})`)
-    return fetch(`/posts?postId=${postId.postId}`)
+    console.log(postId)
+    console.log(`getPost(postId=${postId})`)
+    return fetch(`/posts?postId=${postId}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -123,6 +123,7 @@ function Post() {
     console.log(`Registration checked: result - ${checkAuthorization()}`);
 
     const { postId } = useParams();
+    console.log(`Const postId: ${postId}`)
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -136,9 +137,10 @@ function Post() {
             hasFetchedRef.current = true;
             const postsContainer = document.getElementById("postsContainer");
             console.log(`starting getPost(postId=${postId})`)
-            getPost({ postId })
+            getPost(postId)
                 .then(posts => {
-                    if (posts === 0 || posts === 0) {
+                    console.log(posts)
+                    if (posts === 0) {
                         let p = document.createElement("p");
                         p.textContent = "Post not found"
                         postsContainer.appendChild(p);
@@ -163,7 +165,6 @@ function Post() {
                             let hashtagsContainer = document.createElement("div");
                             hashtagsContainer.className = "post-hashtags";
 
-                            // Исправлена опечатка в цикле (было i вместо h)
                             getPostHashTags(posts[i].postId).then(postHashTags => {
                                 for (let h = 0; h < postHashTags.length; ++h) {
                                     let postHashTag = document.createElement("p");
@@ -182,7 +183,7 @@ function Post() {
                 });
         };
         checkAuth();
-    }, [[postId]]);
+    }, [postId]);
 
     return (
         <>
