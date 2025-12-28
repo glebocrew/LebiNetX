@@ -6,6 +6,7 @@ import Test from './Components/Pages/Test/Test';
 import Posts from "./Components/Pages/Posts/Posts";
 import Post from './Components/Pages/Post/Post';
 import Profile from './Components/Pages/Profile/Profile';
+import NewPost from './Components/Pages/NewPost/NewPost';
 
 function PostWrap() {
     const {postId} = useParams();
@@ -24,6 +25,7 @@ function App() {
         <Route path='/posts' element={ < Posts /> } />
         <Route path='/post/:postId' element = {< PostWrap />} />
         <Route path='/profile' element = {< Profile />} />
+        <Route path='/newpost' element = {< NewPost />} />
       </Routes>
     </BrowserRouter>
   );

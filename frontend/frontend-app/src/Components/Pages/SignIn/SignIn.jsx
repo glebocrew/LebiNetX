@@ -64,14 +64,15 @@ function onButtonClick() {
             return authorize(login, hashedPwd);
         })
         .then(result => {
-            if (message) {
-                console.log(`Result: ${result}`)
-                if (result) {
+            console.log(`Result: ${result}`)
+            if (result) {
+                if (message) {
                     message.textContent = `Correct data!`;
                 }
-                else {
-                    message.textContent = "Incorrect data!";
-                }
+                window.location.href = "/profile";
+            }
+            else if (message) {
+                message.textContent = "Incorrect data!";
             }
         })
         .catch(error => {

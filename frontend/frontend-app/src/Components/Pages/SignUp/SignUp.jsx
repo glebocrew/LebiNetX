@@ -2,6 +2,37 @@ import "./SignUp.css"
 import Menu from "../Menu/Menu";
 import sha512 from "../Utils/Sha512";
 
+async function authorize(login, pwd) {
+    console.log(`/user?nickname=${login}&pwd=${pwd}`)
+    return fetch(`/user?nickname=${login}&pwd=${pwd}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            else {
+                return response.json();
+            }
+        })
+        .then(data => {
+            console.log('Data received:', data);
+            console.log(login, pwd);
+            console.log(`The declaration that data == null is ${data == null}`);
+            if (data == null) {
+                return 0;
+            }
+            else {
+                localStorage.setItem("userId", data.userId);
+                localStorage.setItem("pwd", data.pwd);
+                localStorage.setItem("createdAt", Date.now().toString());
+                console.log(data.userId, data.pwd);
+                return 1;
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+};
+
 async function onButtonClick() {
     let login, email, pwd, repeat_pwd, message;
     const re_email = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -36,30 +67,30 @@ async function onButtonClick() {
 
     const pwdHashed = await sha512(pwd.value);
 
-    fetch(`/users?email=${email.value.trim()}&nickname=${login.value.trim()}&password=${pwdHashed}`, { 
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json',
-        } 
-    })
-    .then(response => {
+    try {
+        const response = await fetch(`/users?email=${email.value.trim()}&nickname=${login.value.trim()}&password=${pwdHashed}`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        return response.json(); 
-    })
-    .then(data => {
+
+        const data = await response.json();
         console.log('Success:', data);
         if (data[0] !== "") {
             console.log(data[0]);
-            console.log(typeof(data[0]));
-            console.log(typeof("email"));
+            console.log(typeof (data[0]));
+            console.log(typeof ("email"));
             let flag = true;
             if (data[0].includes("email")) {
                 message.textContent = "The email is already taken! "
                 message.color = "red";
                 flag = false;
-            } 
+            }
             if (data[0].includes("nickname")) {
                 message.textContent = message.textContent + "The login is already taken!";
                 message.color = "red";
@@ -69,17 +100,22 @@ async function onButtonClick() {
         }
         message.textContent = "Registration successful!";
         message.style.color = "green";
-        
+
+        const isAuthorized = await authorize(login.value.trim(), pwdHashed);
+        if (isAuthorized) {
+            window.location.href = "/profile";
+            return;
+        }
+
         login.value = "";
         email.value = "";
         pwd.value = "";
         repeat_pwd.value = "";
-    })
-    .catch(error => {
+    } catch (error) {
         console.error('Error:', error);
         message.textContent = "Registration failed. Please try again.";
         message.color = "red";
-    });
+    }
 }
 
 function SignUp() {

@@ -2,7 +2,7 @@ import "./Posts.css"
 import Menu from "../Menu/Menu";
 import { useEffect, useRef } from "react";
 
-function deletePost(postId){
+function deletePost(postId) {
     return fetch(`/posts?postId=${postId}`, {
         "method": "DELETE"
     })
@@ -55,9 +55,9 @@ async function checkAuthorization() {
         console.log(`userId is ${userId}`);
         hashedPwd = localStorage.getItem("pwd");
         createdAt = localStorage.getItem("createdAt");
-        
+
         createdAt = Number(createdAt);
-        
+
         now = Date.now();
 
         console.log(`Now timestamp: ${now}`);
@@ -160,59 +160,65 @@ function Posts() {
             const currentUserId = localStorage.getItem("userId");
             getPosts()
                 .then(posts => {
-                    const sortedPosts = posts.sort((a, b) => 
-                    b.userId === currentUserId ? 1 : a.userId === currentUserId ? -1 : 0);
-                    if (posts === 0 || posts === 0) {
+                    const postsList = Array.isArray(posts) ? [...posts] : [];
+                    const sortedPosts = postsList.sort((a, b) =>
+                        b.userId === currentUserId ? 1 : a.userId === currentUserId ? -1 : 0);
+
+                    if (sortedPosts.length === 0) {
                         let p = document.createElement("p");
                         p.textContent = "No Posts"
                         postsContainer.appendChild(p);
+                        return;
                     }
-                    else {
-                        console.log(`Posts length is ${posts.length}`)
-                        for (let i = 0; i < posts.length; ++i) {
-                            console.log(posts[i]);
-                            let post = document.createElement("div");
-                            post.className = "post";
 
-                            let postTitle = document.createElement("h1");
-                            postTitle.className = "post-h1";
-                            postTitle.textContent = posts[i].title;
+                    console.log(`Posts length is ${sortedPosts.length}`)
+                    for (let i = 0; i < sortedPosts.length; ++i) {
+                        console.log(sortedPosts[i]);
+                        let post = document.createElement("div");
+                        post.className = "post";
 
-
-                            let postContent = document.createElement("p");
-                            postContent.className = "post-p";
-                            postContent.textContent = posts[i].content;
+                        let postTitle = document.createElement("h1");
+                        postTitle.className = "post-h1";
+                        postTitle.textContent = sortedPosts[i].title;
 
 
-                            let hashtagsContainer = document.createElement("div");
-                            hashtagsContainer.className = "post-hashtags";
+                        let postContent = document.createElement("p");
+                        postContent.className = "post-p";
+                        postContent.textContent = sortedPosts[i].content;
 
- 
 
-                            getPostHashTags(posts[i].postId).then(postHashTags => {
-                                for (let h = 0; h < postHashTags.length; ++h) {
-                                    let postHashTag = document.createElement("p");
-                                    postHashTag.className = "hashtag";
-                                    postHashTag.textContent = postHashTags[h].hashtag;
-                                    hashtagsContainer.appendChild(postHashTag);
-                                }
-                            });
+                        let hashtagsContainer = document.createElement("div");
+                        hashtagsContainer.className = "post-hashtags";
 
-                            post.appendChild(postTitle);
-                            post.appendChild(postContent);
-                            post.appendChild(hashtagsContainer);
-                            post.onclick = () => { window.location.href = `/post/${posts[i].postId}`; };
 
-                            if (posts[i].userId === localStorage.getItem("userId")) {
-                                let deletePostButton = document.createElement("button");
-                                deletePostButton.className = "delete-post-button";
-                                deletePostButton.textContent = "Delete Post";
-                                deletePostButton.onclick = () => deletePost(posts[i].postId);
-                                post.appendChild(deletePostButton);
+
+                        getPostHashTags(sortedPosts[i].postId).then(postHashTags => {
+                            for (let h = 0; h < postHashTags.length; ++h) {
+                                let postHashTag = document.createElement("p");
+                                postHashTag.className = "hashtag";
+                                postHashTag.textContent = postHashTags[h].hashtag;
+                                hashtagsContainer.appendChild(postHashTag);
                             }
+                        });
 
-                            postsContainer.appendChild(post);
+                        post.appendChild(postTitle);
+                        post.appendChild(postContent);
+                        post.appendChild(hashtagsContainer);
+                        post.onclick = () => { window.location.href = `/post/${sortedPosts[i].postId}`; };
+
+                        if (sortedPosts[i].userId === localStorage.getItem("userId")) {
+                            let deletePostButton = document.createElement("button");
+                            deletePostButton.className = "delete-post-button";
+                            deletePostButton.textContent = "Delete Post";
+                            deletePostButton.onclick = async (e) => {
+                                e.stopPropagation();
+                                await deletePost(sortedPosts[i].postId);
+                                post.remove();
+                            };
+                            post.appendChild(deletePostButton);
                         }
+
+                        postsContainer.appendChild(post);
                     }
                 });
         };

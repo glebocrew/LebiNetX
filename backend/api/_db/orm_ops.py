@@ -534,7 +534,12 @@ class DataBase:
         logger.log("i", "Creating comment...")
         try:
             with self.sessionmaker_local.begin() as session:
-                statement = insert(Comment).values()
+                statement = insert(Comment).values(
+                    commentId=str(uuid4()),
+                    userId=userId,
+                    postId=postId,
+                    content=content,
+                )
                 session.execute(statement)
                 return ("", status.HTTP_200_OK)
 
@@ -544,6 +549,30 @@ class DataBase:
                 f"Something went wrong while creating commment. Full exception: {e}",
             )
             return (str(e).split(sep=":")[0], status.HTTP_400_BAD_REQUEST)
+
+    def delete_comment(self, commentId: str) -> status:
+        """
+        Deletes comment only by id
+
+        :param commentId: uuid4 of comment
+        :type commentId: str
+        :return: HTTP status of the action
+        :rtype: status
+        """
+        logger.log("i", "Deleting comment...")
+        try:
+            with self.sessionmaker_local.begin() as session:
+                statement = delete(Comment).where(Comment.commentId == commentId)
+                session.execute(statement)
+                logger.log("i", "Deleted successfully")
+                return status.HTTP_200_OK
+
+        except Exception as e:
+            logger.log(
+                "e",
+                f"An exception occured while deleting comment. Full exception: {e}",
+            )
+            return status.HTTP_500_INTERNAL_SERVER_ERROR
 
     def get_comments(self, postId):
         """

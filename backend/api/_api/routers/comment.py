@@ -17,7 +17,7 @@ async def comments(postId: str = None) -> List[Comment]:
         else:
             comments = []
             for comment in comments_raw:
-                comments.append(comment(**Comment))
+                comments.append(Comment(**comment))
             return comments
 
 
@@ -26,3 +26,9 @@ async def new_comment(userId: str, postId: str, content: str) -> Tuple[str, int]
     message, status = db.create_comment(userId=userId, postId=postId, content=content)
 
     return message, status
+
+
+@comment_router.delete("/comments")
+async def delete_comment(commentId: str) -> int:
+    response = db.delete_comment(commentId=commentId)
+    return response

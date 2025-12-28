@@ -69,3 +69,143 @@
 
     font-size: 1vw;
 }
+
+.post-edit{
+    position: relative;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+}
+
+.edit-input{
+    width: 60%;
+    padding: 10px;
+    background-color: rgb(37, 37, 37);
+    border: rgba(0, 0, 0, 0) 3px solid !important;
+    border-radius: 45px;
+    color: white;
+}
+
+.edit-textarea{
+    width: 90%;
+    padding: 10px;
+    background-color: rgb(37, 37, 37);
+    border: rgba(0, 0, 0, 0) 3px solid !important;
+    border-radius: 25px;
+    color: white;
+}
+
+.edit-button{
+    width: 30%;
+    padding: 10px;
+    background-color: rgb(37, 37, 37);
+    border: rgba(0, 0, 0, 0) 3px solid !important;
+    border-radius: 45px;
+    color: white;
+    cursor: pointer;
+    transition: all 1s ease-in-out;
+}
+
+.edit-button:hover{
+    background-color: rgb(60, 60, 60);
+}
+
+.comments{
+    position: relative;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.comments-title{
+    margin: 0;
+    padding: 10px;
+}
+
+.comment{
+    position: relative;
+    background-color: rgb(30, 30, 30);
+    border-radius: 25px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.comment-user{
+    margin: 0;
+    padding: 5px;
+    font-size: 1vw;
+}
+
+.comment-content{
+    margin: 0;
+    padding: 5px;
+    font-size: 1.2vw;
+}
+
+.delete-comment-button{
+    width: 30%;
+    padding: 10px;
+    background-color: rgb(37, 37, 37);
+    border: rgba(0, 0, 0, 0) 3px solid !important;
+    border-radius: 45px;
+    color: white;
+    cursor: pointer;
+    transition: all 1s ease-in-out;
+}
+
+.delete-comment-button:hover{
+    background-color: red;
+}
+
+.comment-reactions{
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    padding: 5px;
+}
+
+.new-comment{
+    position: relative;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+}
+
+.new-comment-input{
+    width: 90%;
+    padding: 10px;
+    background-color: rgb(37, 37, 37);
+    border: rgba(0, 0, 0, 0) 3px solid !important;
+    border-radius: 25px;
+    color: white;
+}
+
+.new-comment-button{
+    width: 30%;
+    padding: 10px;
+    background-color: rgb(37, 37, 37);
+    border: rgba(0, 0, 0, 0) 3px solid !important;
+    border-radius: 45px;
+    color: white;
+    cursor: pointer;
+    transition: all 1s ease-in-out;
+}
+
+.new-comment-button:hover{
+    background-color: rgb(60, 60, 60);
+}
